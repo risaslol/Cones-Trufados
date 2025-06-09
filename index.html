@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Interativo de Cones Trufados</title>
+    <!-- Incluindo Tailwind CSS para estilização responsiva e moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos globais para o corpo da página */
+        body {
+            font-family: 'San Francisco', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* Fonte "San Francisco" com fallbacks */
+            background-color: #000000; /* Fundo preto */
+            color: #ffffff; /* Cor padrão do texto branco */
+        }
+        /* Contêiner principal do cardápio */
+        .menu-container {
+            max-width: 900px; /* Largura máxima para centralizar o cardápio */
+            margin: 2rem auto; /* Margem superior/inferior e centralização horizontal */
+            background-color: #1a1a1a; /* Fundo ligeiramente mais claro para o cardápio, criando profundidade */
+            border-radius: 1.5rem; /* Cantos arredondados para um visual moderno */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Sombra para destacar o cardápio */
+            overflow: hidden; /* Garante que os conteúdos internos respeitem os cantos arredondados */
+        }
+        /* Seção do cabeçalho do cardápio */
+        .header-section {
+            background-color: #333333; /* Cor escura para o cabeçalho */
+            color: #ffffff; /* Texto branco no cabeçalho */
+            padding: 2.5rem 1.5rem; /* Espaçamento interno */
+            text-align: center; /* Centraliza o texto */
+            border-top-left-radius: 1.5rem; /* Cantos superiores arredondados */
+            border-top-right-radius: 1.5rem;
+        }
+        /* Estilo para cada item de sabor */
+        .flavor-item {
+            display: flex; /* Usa flexbox para alinhamento */
+            flex-direction: column; /* Coluna em telas pequenas */
+            align-items: center; /* Centraliza itens na coluna */
+            padding: 1.5rem; /* Espaçamento interno */
+            text-align: center; /* Centraliza o texto do item */
+            border-bottom: 2px solid #333333; /* Linha divisória mais grossa entre os itens */
+        }
+        .flavor-item:last-child {
+            border-bottom: none; /* Remove a borda do último item */
+        }
+        /* Estilo das imagens dos sabores */
+        .flavor-item img {
+            width: 100%; /* Ocupa 100% da largura disponível (até o max-width) */
+            max-width: 280px; /* Limita a largura máxima da imagem */
+            height: auto; /* Mantém a proporção da imagem */
+            border-radius: 0.75rem; /* Cantos arredondados para as imagens */
+            margin-bottom: 1rem; /* Espaçamento abaixo da imagem */
+            object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra para as imagens */
+        }
+        /* Estilo para o invólucro dos detalhes do sabor (texto e controles) */
+        .flavor-details-wrapper {
+            display: flex;
+            flex-direction: column; /* Conteúdo interno sempre em coluna */
+            align-items: center; /* Centraliza itens no invólucro */
+            flex: 1; /* Permite que o wrapper ocupe espaço disponível em layout de linha */
+            width: 100%; /* Garante que o wrapper ocupe a largura total em mobile */
+        }
+        /* Estilo da descrição do sabor */
+        .flavor-description {
+            color: #cccccc; /* Cor cinza claro para as descrições, para boa legibilidade no fundo escuro */
+            line-height: 1.6; /* Altura da linha para melhor leitura */
+            margin-bottom: 1rem; /* Espaçamento abaixo da descrição */
+            font-size: 1.1rem; /* Aumenta o tamanho da fonte da descrição */
+            font-weight: 500; /* Deixa a fonte mais "grossinha" (semi-bold) */
+            margin-top: 1.5rem; /* Aumentado o espaço acima da descrição */
+        }
+        /* Estilo para o preço do cone */
+        .cone-price {
+            font-size: 1.75rem; /* Tamanho da fonte para o preço */
+            font-weight: bold; /* Negrito */
+            color: #ffffff; /* Cor branca */
+            margin-top: 0.5rem; /* Margem superior para separar da descrição */
+            margin-bottom: 1rem; /* Margem inferior */
+        }
+
+        /* Cores vibrantes para os títulos dos sabores */
+        #title-ninho-nutella { color: #FFDAB9; } /* Pêssego claro, remetendo ao Ninho */
+        #title-chocolate-gourmet { color: #8B4513; } /* Marrom vibrante para chocolate */
+        #title-ninho-uva { color: #9370DB; } /* Roxo médio, para uva */
+        #title-maracuja { color: #FFD700; } /* Amarelo ouro para maracujá */
+        #title-prestigio { color: #00BFFF; } /* Azul céu, para um toque de frescor do coco */
+        #title-tres-em-um { color: #FFA500; } /* Laranja vibrante para "Três em Um" */
+        #title-oreo { color: #696969; } /* Cinza escuro para Oreo */
+        #title-pacoca { color: #D2B48C; } /* Tan, cor de amendoim */
+        #title-banoffe { color: #FFEB3B; } /* Amarelo de banana */
+        #title-limao { color: #32CD32; } /* Verde limão */
+
+
+        /* Responsividade para telas maiores (md = 768px e acima) */
+        @media (min-width: 768px) {
+            .flavor-item {
+                flex-direction: row; /* Volta para linha em telas maiores */
+                text-align: left; /* Alinha texto à esquerda */
+                align-items: flex-start; /* Alinha itens ao topo */
+                padding: 2rem; /* Aumenta o espaçamento interno */
+            }
+            .flavor-item.reverse {
+                flex-direction: row-reverse; /* Inverte a ordem para alternar imagem esquerda/direita */
+            }
+            .flavor-item img {
+                margin-bottom: 0; /* Remove margem inferior da imagem */
+                margin-right: 2rem; /* Adiciona margem à direita da imagem */
+                max-width: 250px; /* Ajuste a largura máxima para desktop */
+            }
+            .flavor-item.reverse img {
+                margin-right: 0; /* Remove margem direita (se reverso) */
+                margin-left: 2rem; /* Adiciona margem à esquerda da imagem (se reverso) */
+            }
+            .flavor-details-wrapper { /* Novo seletor */
+                align-items: flex-start; /* Alinha itens à esquerda dentro do wrapper em desktop */
+            }
+            .flavor-text .quantity-selector { /* Este seletor não será mais necessário */
+                justify-content: flex-start; /* Alinha o seletor à esquerda dentro do flavor-text para desktop */
+            }
+        }
+
+        /* Estilo para as informações de contato dentro do cabeçalho */
+        .contact-info-header {
+            margin-top: 2rem; /* Espaçamento do conteúdo acima */
+            padding-top: 1rem; /* Espaçamento interno superior */
+            border-top: 1px solid rgba(255, 255, 255, 0.2); /* Linha divisória */
+            font-size: 1rem;
+        }
+        .contact-info-header p {
+            margin-bottom: 0.5rem; /* Espaçamento entre as linhas de contato */
+        }
+        .contact-info-header a {
+            color: inherit; /* Mantém a cor do texto pai */
+            text-decoration: none; /* Remove sublinhado padrão de links */
+            font-size: 1.5rem; /* Tamanho maior para o número de telefone */
+            font-weight: bold;
+            cursor: pointer; /* Indica que é clicável */
+        }
+        .contact-info-header a:hover {
+            text-decoration: underline; /* Adiciona sublinhado ao passar o mouse */
+        }
+        /* Mensagem de sucesso ao copiar */
+        .copied-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .copied-message.show {
+            opacity: 1;
+        }
+
+        /* Estilos para o seletor de quantidade */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centraliza no modo coluna */
+            margin-top: 1rem;
+        }
+        .quantity-button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.25rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            width: 40px; /* Largura fixa para botões */
+            height: 40px; /* Altura fixa para botões */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none; /* Impede seleção de texto */
+        }
+        .quantity-button:hover {
+            background-color: #555;
+        }
+        .quantity-display {
+            background-color: #2a2a2a;
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            min-width: 50px; /* Largura mínima para o número */
+            text-align: center;
+        }
+        /* Estilo para o botão de finalizar pedido */
+        .order-button {
+            background-color: #25D366; /* Verde WhatsApp */
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 2rem auto; /* Centraliza o botão */
+            display: block; /* Para que margin: auto funcione */
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .order-button:hover {
+            background-color: #1DA851;
+            transform: translateY(-2px);
+        }
+        .order-button:active {
+            transform: translateY(0);
+        }
+
+        /* Estilo para o modal de confirmação */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #1a1a1a;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+        .modal-content h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        .modal-content p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #cccccc;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-button-confirm {
+            background-color: #25D366;
+            color: white;
+            border: none;
+        }
+        .modal-button-confirm:hover {
+            background-color: #1DA851;
+        }
+        .modal-button-cancel {
+            background-color: #FF6347; /* Tomato */
+            color: white;
+            border: none;
+        }
+        .modal-button-cancel:hover {
+            background-color: #E5533A;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <div class="header-section">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-2">✨ Cardápio de Cones Trufados ✨</h1>
+            <p class="text-xl md:text-2xl font-light">APRECIE UM MOMENTO DE DOÇURA</p>
+            <p class="mt-4 text-base md:text-lg">
+                Nossos cones são meticulosamente elaborados com ingredientes de alta qualidade, incluindo frutas frescas selecionadas como morango, banana, coco, maracujá e uva. Utilizamos Nutella, Leite Ninho e Paçoquita, todos de procedência original, garantindo uma experiência de sabor verdadeiramente irresistível e excepcional. Cada cone é feito com carinho visando o melhor resultado para os nossos clientes.
+            </p>
+
+            <!-- Informações de contato no cabeçalho -->
+            <div class="contact-info-header">
+                <p>PEDIDOS VIA WHATSAPP</p>
+                <p>
+                    <a href="https://wa.me/5511989402197" target="_blank" rel="noopener noreferrer">11 98940-2197</a>
+                </p>
+                <p>PIX: <span id="pix-number" style="cursor: pointer;" title="Clique para copiar">11 98940-2197</span></p>
+            </div>
+        </div>
+
+        <div class="p-4 md:p-8">
+            <h2 class="text-3xl font-bold text-center text-white mb-6">Nossos Sabores Incríveis:</h2>
+
+            <!-- Cada item de sabor terá um seletor de quantidade -->
+            <!-- Item: Ninho com Nutella -->
+            <div class="flavor-item">
+                <img src="https://placehold.co/300x200/FFFDD0/A0522D?text=Ninho+com+Nutella" alt="Cone Trufado de Ninho com Nutella" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-ninho-nutella" class="text-2xl font-semibold mb-2">🍓 Ninho com Nutella</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Ninho com Nutella" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Ninho com Nutella">0</span>
+                        <button class="quantity-button" data-flavor="Ninho com Nutella" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">O clássico que a gente ama! Leite Ninho cremoso encontrando aquela Nutella de verdade. É de dar água na boca!</p>
+                </div>
+            </div>
+
+            <!-- Item: Chocolate Gourmet -->
+            <div class="flavor-item reverse">
+                <img src="https://placehold.co/300x200/8B4513/FFFFFF?text=Chocolate+Gourmet" alt="Cone Trufado de Chocolate Gourmet" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-chocolate-gourmet" class="text-2xl font-semibold mb-2">🍫 Chocolate Gourmet</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Chocolate Gourmet" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Chocolate Gourmet">0</span>
+                        <button class="quantity-button" data-flavor="Chocolate Gourmet" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">Para quem é fã de chocolate de verdade! Um recheio super cremoso e com aquele sabor intenso que só o chocolate gourmet tem. Pura felicidade!</p>
+                </div>
+            </div>
+
+            <!-- Item: Ninho com Uva -->
+            <div class="flavor-item">
+                <img src="https://placehold.co/300x200/D8BFD8/4B0082?text=Ninho+com+Uva" alt="Cone Trufado de Ninho com Uva" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-ninho-uva" class="text-2xl font-semibold mb-2">🍇 Ninho com Uva</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Ninho com Uva" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Ninho com Uva">0</span>
+                        <button class="quantity-button" data-flavor="Ninho com Uva" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">A suavidade do Leite Ninho junto com a explosão suculenta da uva. Uma combinação inusitada e deliciosa que vai te surpreender!</p>
+                </div>
+            </div>
+
+            <!-- Item: Maracujá -->
+            <div class="flavor-item reverse">
+                <img src="https://placehold.co/300x200/FFD700/8B4513?text=Maracuj%C3%A1" alt="Cone Trufado de Maracujá" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-maracuja" class="text-2xl font-semibold mb-2">🥭 Maracujá</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Maracujá" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Maracujá">0</span>
+                        <button class="quantity-button" data-flavor="Maracujá" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">Aquele azedinho do maracujá que a gente adora, com a cremosidade do nosso recheio. Uma explosão tropical na sua boca!</p>
+                </div>
+            </div>
+
+            <!-- Item: Prestígio -->
+            <div class="flavor-item">
+                <img src="https://placehold.co/300x200/F0F8FF/5F9EA0?text=Prest%C3%ADgio" alt="Cone Trufado de Prestígio" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-prestigio" class="text-2xl font-semibold mb-2">🥥 Prestígio</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Prestígio" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Prestígio">0</span>
+                        <button class="quantity-button" data-flavor="Prestígio" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">Coco e chocolate, a dupla perfeita! Sabor clássico que remete à infância, feito com muito carinho e sabor.</p>
+                </div>
+            </div>
+
+            <!-- Item: Três em Um -->
+            <div class="flavor-item reverse">
+                <img src="https://placehold.co/300x200/FFE4B5/8B4513?text=Tr%C3%AAs+em+Um" alt="Cone Trufado Três em Um" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-tres-em-um" class="text-2xl font-semibold mb-2">🌟 Três em Um (Ninho, Nutella e Prestígio)</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Três em Um" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Três em Um">0</span>
+                        <button class="quantity-button" data-flavor="Três em Um" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">Não consegue escolher só um? A gente resolve! Ninho, Nutella e Prestígio juntos para você se deliciar sem culpa!</p>
+                </div>
+            </div>
+
+            <!-- Item: Oreo -->
+            <div class="flavor-item">
+                <img src="https://placehold.co/300x200/A9A9A9/2F4F4F?text=Oreo" alt="Cone Trufado de Oreo" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-oreo" class="text-2xl font-semibold mb-2">🍪 Oreo</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Oreo" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Oreo">0</span>
+                        <button class="quantity-button" data-flavor="Oreo" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">Pedaços do seu biscoito favorito em um recheio cremoso e irresistível. Perfeito para quem ama a combinação de crocância e sabor!</p>
+                </div>
+            </div>
+
+            <!-- Item: Paçoca -->
+            <div class="flavor-item reverse">
+                <img src="https://placehold.co/300x200/D2B48C/8B4513?text=Pa%C3%A7oca" alt="Cone Trufado de Paçoca" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-pacoca" class="text-2xl font-semibold mb-2">🥜 Paçoca</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Paçoca" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Paçoca">0</span>
+                        <button class="quantity-button" data-flavor="Paçoca" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">O gostinho da paçoca que a gente tanto ama, em um cone super cremoso. Uma delícia com sabor de festa junina o ano todo!</p>
+                </div>
+            </div>
+
+            <!-- Item: Banoffe -->
+            <div class="flavor-item">
+                <img src="https://placehold.co/300x200/F5DEB3/8B4513?text=Banoffe" alt="Cone Trufado de Banoffe" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-banoffe" class="text-2xl font-semibold mb-2">🍌 Banoffe</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Banoffe" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Banoffe">0</span>
+                        <button class="quantity-button" data-flavor="Banoffe" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">A famosa torta Banoffee agora em cone! Banana, doce de leite e um toque especial que vai te fazer pedir mais. É de comer rezando!</p>
+                </div>
+            </div>
+
+            <!-- Item: Limão -->
+            <div class="flavor-item reverse">
+                <img src="https://placehold.co/300x200/ADD8E6/0000CD?text=Lim%C3%A3o" alt="Cone Trufado de Limão" onerror="this.onerror=null;this.src='https://placehold.co/300x200/555/EEE?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+                <div class="flavor-details-wrapper">
+                    <h3 id="title-limao" class="text-2xl font-semibold mb-2">🍋 Limão</h3>
+                    <p class="cone-price">$8,00</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-button" data-flavor="Limão" data-action="decrease">-</button>
+                        <span class="quantity-display" id="qty-Limão">0</span>
+                        <button class="quantity-button" data-flavor="Limão" data-action="increase">+</button>
+                    </div>
+                    <p class="flavor-description">Para quem gosta de um azedinho que equilibra a doçura! Recheio de limão leve e super refrescante, perfeito para um dia quente.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão para finalizar pedido -->
+        <button id="finish-order-button" class="order-button">Finalizar Pedido</button>
+    </div>
+
+    <!-- Mensagem de feedback para o usuário ao copiar PIX -->
+    <div id="copiedMessage" class="copied-message">
+        Copiado!
+    </div>
+
+    <!-- Modal de confirmação do pedido -->
+    <div id="orderConfirmationModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Confirme seu Pedido</h3>
+            <div id="orderSummary"></div>
+            <div class="modal-buttons">
+                <button id="confirmOrderBtn" class="modal-button-confirm">Enviar Pedido via WhatsApp</button>
+                <button id="cancelOrderBtn" class="modal-button-cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const pixNumberElement = document.getElementById('pix-number');
+            const copiedMessage = document.getElementById('copiedMessage');
+            const quantityButtons = document.querySelectorAll('.quantity-button');
+            const finishOrderButton = document.getElementById('finish-order-button');
+            const orderConfirmationModal = document.getElementById('orderConfirmationModal');
+            const orderSummaryDiv = document.getElementById('orderSummary');
+            const confirmOrderBtn = document.getElementById('confirmOrderBtn');
+            const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+
+            // Objeto para armazenar as quantidades selecionadas
+            const selectedFlavors = {};
+
+            // Inicializa as quantidades no display e no objeto
+            document.querySelectorAll('.flavor-item').forEach(item => {
+                const flavorName = item.querySelector('h3').textContent.replace(/[\uD800-\uDBFF\uDC00-\uDFFF]/g, '').trim(); // Remove emojis para usar como chave
+                const quantityDisplay = item.querySelector('.quantity-display');
+                if (flavorName && quantityDisplay) {
+                    selectedFlavors[flavorName] = 0;
+                    quantityDisplay.textContent = 0;
+                }
+            });
+
+            // Lógica para copiar o número PIX
+            if (pixNumberElement) {
+                pixNumberElement.addEventListener('click', () => {
+                    const textToCopy = pixNumberElement.textContent.trim();
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = textToCopy;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+
+                    copiedMessage.classList.add('show');
+                    setTimeout(() => {
+                        copiedMessage.classList.remove('show');
+                    }, 2000);
+                });
+            }
+
+            // Lógica para os botões de quantidade
+            quantityButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const flavorName = event.target.dataset.flavor;
+                    const action = event.target.dataset.action;
+                    const quantityDisplay = document.getElementById(`qty-${flavorName}`);
+
+                    let currentQty = selectedFlavors[flavorName] || 0;
+
+                    if (action === 'increase') {
+                        currentQty++;
+                    } else if (action === 'decrease' && currentQty > 0) {
+                        currentQty--;
+                    }
+
+                    selectedFlavors[flavorName] = currentQty;
+                    quantityDisplay.textContent = currentQty;
+                });
+            });
+
+            // Lógica para o botão "Finalizar Pedido"
+            finishOrderButton.addEventListener('click', () => {
+                let orderText = 'Olá! Gostaria de fazer o seguinte pedido de cones trufados:\n\n';
+                let totalItems = 0;
+
+                for (const flavor in selectedFlavors) {
+                    if (selectedFlavors[flavor] > 0) {
+                        orderText += `${selectedFlavors[flavor]}x ${flavor}\n`;
+                        totalItems += selectedFlavors[flavor];
+                    }
+                }
+
+                if (totalItems === 0) {
+                    orderSummaryDiv.innerHTML = '<p>Por favor, selecione a quantidade de cones que deseja pedir.</p>';
+                    confirmOrderBtn.style.display = 'none'; // Esconde o botão de confirmar se não há itens
+                } else {
+                    orderSummaryDiv.innerHTML = `<p>${orderText.replace(/\n/g, '<br>')}</p>`;
+                    confirmOrderBtn.style.display = 'block'; // Mostra o botão
+                    confirmOrderBtn.onclick = () => {
+                        const whatsappLink = `https://wa.me/5511989402197?text=${encodeURIComponent(orderText)}`;
+                        window.open(whatsappLink, '_blank');
+                        orderConfirmationModal.classList.remove('show');
+                    };
+                }
+                orderConfirmationModal.classList.add('show');
+            });
+
+            // Lógica para fechar o modal
+            cancelOrderBtn.addEventListener('click', () => {
+                orderConfirmationModal.classList.remove('show');
+            });
+
+            orderConfirmationModal.addEventListener('click', (event) => {
+                if (event.target === orderConfirmationModal) {
+                    orderConfirmationModal.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
